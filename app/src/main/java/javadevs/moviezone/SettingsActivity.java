@@ -26,7 +26,11 @@ public class SettingsActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch(item.getItemId()) {
             case R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }

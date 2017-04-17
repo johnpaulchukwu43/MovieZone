@@ -10,40 +10,34 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.ProgressBar;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 
-import javadevs.moviezone.Util.NetworkUtil;
-import javadevs.moviezone.Util.SortMovieOrder;
+import javadevs.moviezone.Interface.MovieCallBack;
+import javadevs.moviezone.Util.FetchMovieAsync;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
     private static final String TAG = MainActivity.class.getSimpleName();
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private static final String LISTS ="LISTOFMOVIES" ;
+
+    private MovieAdapt mAdapter;
     private ArrayList<Movie> myMovies;
     public AlertDialog.Builder mAlertDialog;
     public AlertDialog mAlert;
-    public GridLayoutManager gridLayoutManager;
+    public ProgressBar mProgressBar;
 
     private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
+    String sortingOrder ;
 
 
     @Override
@@ -68,17 +62,35 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //get Save Instances
+        if(savedInstanceState == null || !savedInstanceState.containsKey(LISTS)){
+            myMovies=new ArrayList<>();
+        }else{
+            myMovies=  savedInstanceState.getParcelableArrayList(LISTS);
+        }
+
         //GridLayout
-        gridLayoutManager = new GridLayoutManager(MainActivity.this, 2);
-        //Set recyclerViewUp
-        mRecyclerView = (RecyclerView) findViewById(R.id.mrecycle);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        //SetRecyclerAdapter
         myMovies = new ArrayList<>();
-        mAdapter = new MovieAdapter(myMovies,this);
-        mRecyclerView.setAdapter(mAdapter);
-        successLoad();
+        mAdapter = new MovieAdapt(myMovies,this);
+        GridView mygridView=(GridView) findViewById(R.id.my_grid_view);
+        mygridView.setAdapter(mAdapter);
+//onclick Listener
+        mygridView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Movie mymovie= (Movie) mAdapter.getItem(i);
+                Intent intent=new Intent(MainActivity.this,DetailActivity.class);
+                intent.putExtra("title",mymovie.getTitle());
+                intent.putExtra("posterpath",mymovie.getPosterPath());
+                intent.putExtra("overview",mymovie.getOverview());
+                intent.putExtra("releasedate",mymovie.getReleaseDate());
+                intent.putExtra("voteAverage",mymovie.getVoteAverage());
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
+        //Progress
+
 //        Create AlertDialog for Network Info
         mAlertDialog = new AlertDialog.Builder(this);
         mAlertDialog.setMessage("No Network Connection,put on wifi or mobile data and try again");
@@ -100,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         //SharedPref
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
+        successLoad();
     }
 
     @Override
@@ -109,11 +122,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
          * MainActivity, perform another query and set the flag to false.
          */
         super.onStart();
-        if (PREFERENCES_HAVE_BEEN_UPDATED){
-            Log.d(TAG, "onStart: preferences were updated");
+
             successLoad();
-            PREFERENCES_HAVE_BEEN_UPDATED = false;
-        }
+
     }
 
     @Override
@@ -127,66 +138,49 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
 
 
-    private void successLoad() {
+    public void successLoad() {
 
+        if(CheckForMobileNetwork() || CheckForWifiNetwork()){
             LoadData();
+        }
+        else{
+            mAlert.show();
+
+        }
+
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
     }
 
     private void LoadData() {
-        String istop_rated = "";
-        boolean isTopOrder = SortMovieOrder.topRated(MainActivity.this);
-        if (isTopOrder){
-            istop_rated = "true";
-        }else {
-            istop_rated = "false";
-        }
-        String _URL =  NetworkUtil.buildUrl(istop_rated).toString();
-        final ProgressDialog mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage("Loading Feeds..Please Wait");
-        mProgressDialog.show();
-        StringRequest mStringRequest = new StringRequest(Request.Method.GET, _URL,
-                new Response.Listener<String>() {
 
-                    @Override
-                    public void onResponse(String response) {
-                       try{
-                           mProgressDialog.dismiss();
-
-                           JSONObject mJsonObject = new JSONObject(response);
-                           JSONArray mJsonArray = mJsonObject.getJSONArray("results");
-                           for(int i=0;i<mJsonArray.length();i++){
-                               JSONObject singleMovieItem = mJsonArray.getJSONObject(i);
-                               Movie movieList = new Movie(
-                                       singleMovieItem.getString("original_title"),
-                                       singleMovieItem.getString("poster_path"),
-                                       singleMovieItem.getString("overview"),
-                                       singleMovieItem.getString("vote_average"),
-                                       singleMovieItem.getString("release_date")
-                               );
-                               Log.w(TAG, "onResponse: what i get"+movieList.getPosterPath());
-                               myMovies.add(movieList);
-                           }
-                           mAdapter = new MovieAdapter(myMovies,getApplicationContext());
-                           mRecyclerView.setAdapter(mAdapter);
-
-                       }
-                       catch (Exception ex){
-                           ex.printStackTrace();
-                       }
-                    }
-                },
-                new Response.ErrorListener(){
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(),"Connection Failed..Refresh to try Again",Toast.LENGTH_LONG).show();
-                        mProgressDialog.dismiss();
-
+        FetchMovieAsync moviesTask = new FetchMovieAsync(new MovieCallBack() {
+            @Override
+            public void updateData(Movie[] mymovie) {
+                if (mymovie != null) {
+                    mAdapter.cleanUp();
+                    Collections.addAll(myMovies, mymovie);
+                    mAdapter.notifyDataSetChanged();
                 }
-            });
-        RequestQueue mRequestQueue =  Volley.newRequestQueue(getApplicationContext());
-        mRequestQueue.add(mStringRequest);
+            }
+
+        });
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        String sortingOrder = preferences.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popular_value));
+        moviesTask.execute(sortingOrder);
+
     }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(LISTS, myMovies);
+        super.onSaveInstanceState(outState);
+    }
+
 
     //check for wifi Connection
     public boolean CheckForWifiNetwork(){
@@ -195,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return wifi;
     }
     //check for Mobile Data Connection
+
     public boolean CheckForMobileNetwork(){
         ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean mobile = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
@@ -202,9 +197,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     }
 
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         PREFERENCES_HAVE_BEEN_UPDATED = true;
+
+
+
     }
 }
