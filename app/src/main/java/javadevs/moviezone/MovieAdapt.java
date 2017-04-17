@@ -63,7 +63,8 @@ public class MovieAdapt extends BaseAdapter{
 
         Picasso.with(ctx)
                 .load(url)
-                .placeholder(R.drawable.avatar)
+                .placeholder(R.mipmap.ic_load)
+                .error(R.mipmap.ic_error)
                 .into(mImg);
         return mImg;
     }

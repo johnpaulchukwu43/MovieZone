@@ -3,6 +3,8 @@
     package="javadevs.moviezone">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
     <application
         android:allowBackup="true"
@@ -11,9 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
-            android:launchMode="singleTop"
-            >
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,20 +30,20 @@
         <!-- android:name="android.support.PARENT_ACTIVITY" -->
         <!-- android:value="javadevs.moviezone.MainActivity" /> -->
         <!-- </activity> -->
-        <activity android:name=".DetailActivity"
+        <activity
+            android:name=".DetailActivity"
             android:parentActivityName=".MainActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
-
-        <activity android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity"
+        <activity
+            android:name=".SettingsActivity"
             android:label="@string/settings"
-
-            >
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
-
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
         </activity>
     </application>
 
