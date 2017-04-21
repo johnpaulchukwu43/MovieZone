@@ -6,10 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-
 import com.squareup.picasso.Picasso;
-
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 /**

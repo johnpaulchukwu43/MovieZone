@@ -1,6 +1,4 @@
 package javadevs.moviezone;
-
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,30 +14,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ProgressBar;
-
 import java.util.ArrayList;
 import java.util.Collections;
-
 import javadevs.moviezone.Interface.MovieCallBack;
 import javadevs.moviezone.Util.FetchMovieAsync;
-
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String LISTS ="LISTOFMOVIES" ;
-
     private MovieAdapt mAdapter;
     private ArrayList<Movie> myMovies;
     public AlertDialog.Builder mAlertDialog;
     public AlertDialog mAlert;
-    public ProgressBar mProgressBar;
-
-    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
-    String sortingOrder ;
-
-
+    public String sortingOrder;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -57,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
         return super.onOptionsItemSelected(item);
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,14 +103,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     protected void onStart() {
-        /*
-         * If the preferences for sort order have changed since the user was last in
-         * MainActivity, perform another query and set the flag to false.
-         */
         super.onStart();
-
             successLoad();
-
     }
 
     @Override
@@ -135,8 +115,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
-
-
 
     public void successLoad() {
 
@@ -149,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
 
     }
-
     @Override
     public void onRestart() {
         super.onRestart();
@@ -170,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         });
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(this);
-        String sortingOrder = preferences.getString(getString(R.string.pref_sort_key),
+         sortingOrder = preferences.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popular_value));
         moviesTask.execute(sortingOrder);
 
@@ -199,9 +176,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        PREFERENCES_HAVE_BEEN_UPDATED = true;
-
-
-
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+         sortingOrder = preferences.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popular_value));
     }
 }

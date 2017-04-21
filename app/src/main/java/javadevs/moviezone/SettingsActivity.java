@@ -2,13 +2,11 @@ package javadevs.moviezone;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 public class SettingsActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,14 +15,11 @@ public class SettingsActivity extends AppCompatActivity {
         if(mActionBar!=null){
             mActionBar.setDefaultDisplayHomeAsUpEnabled(true);
         }
-
-
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch(item.getItemId()) {
+        switch(id) {
             case R.id.home:
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -34,8 +29,4 @@ public class SettingsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-
-
-
 }
