@@ -1,36 +1,60 @@
-package javadevs.moviezone.Util;
+package javadevs.moviezone;
 
 import android.net.Uri;
-import android.util.Log;
 
-import java.net.MalformedURLException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
-
-/**
- * Created by CHUKWU JOHNPAUL on 15/04/17.
- */
 
 public class NetworkUtil {
 
-        private static final String TAG = NetworkUtil.class.getSimpleName();
-          public static URL buildUrl(String topratedUrl) {
-            String movieUrl = "";
-            //If url is toprated we use the top_rated query else popular
-            if (topratedUrl.equals("true")){
-                movieUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=ef64a84df789083d3c9996e5c1e3c055";
-            }else {
-                movieUrl = "http://api.themoviedb.org/3/movie/popular?api_key=ef64a84df789083d3c9996e5c1e3c055";
+    public static synchronized String getJsonString(Uri uri) {
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String jsonString = null;
+        try {
+            URL url = new URL(uri.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuilder builder = new StringBuilder();
+            if (inputStream == null) {
+                return null;
             }
-            Uri builtUri = Uri.parse(movieUrl).buildUpon().build();
-            URL url = null;
-            try {
-                url = new URL(builtUri.toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                //noinspection StringConcatenationInsideStringBufferAppend
+                builder.append(line + "\n");
             }
 
-            Log.v(TAG, "Built URI " + url);
-            return url;
+            if (builder.length() == 0) {
+                return null;
+            }
+
+            jsonString = builder.toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
+        return jsonString;
+    }
 }
