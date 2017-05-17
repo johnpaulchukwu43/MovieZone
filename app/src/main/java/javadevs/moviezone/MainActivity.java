@@ -1,10 +1,13 @@
 package javadevs.moviezone;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
@@ -14,19 +17,42 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Collections;
+
 import javadevs.moviezone.Interface.MovieCallBack;
 import javadevs.moviezone.Util.FetchMovieAsync;
+import javadevs.moviezone.adapters.MovieAdapt;
+import javadevs.moviezone.data.MoviesZoneContract;
+import javadevs.moviezone.model.Movie;
+
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
-    private static final String LISTS ="LISTOFMOVIES" ;
+    private static final String LISTS = "movie_list";
+    private static final String KEY_SELECTED_POSITION = "SELECTED_POSITION";
+    public static final String MOVIE = "movie" ;
+    private static final String INDEX = "index" ;
+    private static final String TOP = "top" ;
+    int index=-1;
+    int top=-1;
+    private int itemPosition = GridView.INVALID_POSITION;
     private MovieAdapt mAdapter;
     private ArrayList<Movie> myMovies;
     public AlertDialog.Builder mAlertDialog;
     public AlertDialog mAlert;
     public String sortingOrder;
+    SharedPreferences prefs;
+    public boolean IS_PREFERENCE_UPDATE = false;
+    GridView mygridView;
+    Parcelable grid_state;
+    public static final String API_KEY ="ef64a84df789083d3c9996e5c1e3c055";
+    public static ProgressBar pb_loading_indicator;
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -36,11 +62,25 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.action_settings:
-                Intent settingsActivity = new Intent(this,SettingsActivity.class);
-                startActivity(settingsActivity);
-                return true;
+        int id = item.getItemId();//Get the id menu clicked
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (id == R.id.action_most_popular) {
+            changeSortOrder(R.string.pref_sort_popular_value);
+            successLoad();
+            return true;
+        } else if (id == R.id.action_top_rating) {
+            changeSortOrder(R.string.pref_sort_rating_value);
+            successLoad();
+            return true;
+        } else if (id == R.id.action_favorite) {
+            changeSortOrder(R.string.pref_sort_favourite);
+            successLoad();
+            return true;
+        }
+        else if (id == R.id.menu_refresh) {
+            successLoad();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -51,35 +91,51 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         //get Save Instances
         if(savedInstanceState == null || !savedInstanceState.containsKey(LISTS)){
             myMovies=new ArrayList<>();
+
+
         }else{
+
             myMovies=  savedInstanceState.getParcelableArrayList(LISTS);
+            itemPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION);
+
         }
 
-        //GridLayout
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //get the default sorting Option
+        sortingOrder = prefs.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular_value));
+        //progressbar
+        pb_loading_indicator = (ProgressBar)findViewById(R.id.pb_loading_indicator);
         myMovies = new ArrayList<>();
         mAdapter = new MovieAdapt(myMovies,this);
-        GridView mygridView=(GridView) findViewById(R.id.my_grid_view);
+        //GridView
+        mygridView=(GridView) findViewById(R.id.my_grid_view);
         mygridView.setAdapter(mAdapter);
-//onclick Listener
+//grid view onclick Listener
         mygridView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Movie mymovie= (Movie) mAdapter.getItem(i);
+                itemPosition = i;
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(MOVIE, mymovie);
+                //Pass the movie info to the Detail page using an Intent
                 Intent intent=new Intent(MainActivity.this,DetailActivity.class);
-                intent.putExtra("title",mymovie.getTitle());
-                intent.putExtra("posterpath",mymovie.getPosterPath());
+                intent.putExtra("id", mymovie.getId());
+                intent.putExtra("title", mymovie.getTitle());
                 intent.putExtra("overview",mymovie.getOverview());
-                intent.putExtra("releasedate",mymovie.getReleaseDate());
-                intent.putExtra("voteAverage",mymovie.getVoteAverage());
+                intent.putExtra("language", mymovie.getOriginalLanguage());
+                intent.putExtra("date", mymovie.getReleaseDate());
+                intent.putExtra("ratings", mymovie.getVoteAverage());
+                intent.putExtra("poster",mymovie.getPosterPath());
+                intent.putExtra("genre", mymovie.getGenreIdStrings());
+                intent.putExtra("backdrop_path",mymovie.getBackdropPath());
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
         });
-        //Progress
-
 //        Create AlertDialog for Network Info
         mAlertDialog = new AlertDialog.Builder(this);
-        mAlertDialog.setMessage("No Network Connection,put on wifi or mobile data and try again");
+        mAlertDialog.setMessage("No Network Connection,put on wifi or mobile data Refresh");
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_alert);
         mAlertDialog.setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
             @Override
@@ -94,11 +150,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             }
         });
         mAlert = mAlertDialog.create();
-
-        //SharedPref
+        //Register the sharedPreference Listener on this class since it implements SharedPreferences.OnSharedPreferenceChangeListener
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
+      //fire up the data
         successLoad();
+
     }
 
     @Override
@@ -117,48 +174,99 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     public void successLoad() {
+            //get default shared Prefernce
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            sortingOrder = prefs.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular_value));
+            //sorting order  is not favourite
+            if (!sortingOrder.equals(getString(R.string.pref_sort_favourite))) {
+                if(CheckForMobileNetwork() || CheckForWifiNetwork()){//check if there is network connection
+                    LoadData(sortingOrder);
+                }
+                else{
+                    mAlert.show();
 
-        if(CheckForMobileNetwork() || CheckForWifiNetwork()){
-            LoadData();
-        }
-        else{
-            mAlert.show();
+                }
+            } else {
+                LoadFavourite();
+            }
 
-        }
+
+    }
+    //FETCH USERS FAVOURITE MOVIE FROM DB
+    public void LoadFavourite() {
+
+                    Cursor cursor = getContentResolver()
+                    .query(MoviesZoneContract.MoviesEntry.CONTENT_URI, null, null, null, null);
+           mAdapter.cleanUp();
+            assert cursor != null;
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                do {
+                    Movie movie = new Movie(
+                            cursor.getInt(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_MOVIE_ID)),
+                            cursor.getString(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_TITLE)),
+                            cursor.getString(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_POSTER_PATH)),
+                            cursor.getString(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_OVERVIEW)),
+                                cursor.getDouble(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_RATING)),
+                            cursor.getString(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_RELEASE_DATE)),
+                            cursor.getString(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_LANGUAGE)),
+                            cursor.getString(cursor.getColumnIndex(
+                                    MoviesZoneContract.MoviesEntry.COLUMN_BACKGROUND_IMAGE_PATH)));
+
+                    myMovies.add(movie);
+                } while (cursor.moveToNext());
+            }
+            else{
+                Toast.makeText(this, "No Favourites Yet", Toast.LENGTH_SHORT).show();
+            }
+            mAdapter.notifyDataSetChanged();
+            if (itemPosition != GridView.INVALID_POSITION) {
+                mygridView.smoothScrollToPosition(itemPosition);
+            }
+            cursor.close();
+
 
     }
     @Override
     public void onRestart() {
         super.onRestart();
     }
-
-    private void LoadData() {
+//Fetch data
+    public void LoadData(String order) {
 
         FetchMovieAsync moviesTask = new FetchMovieAsync(new MovieCallBack() {
+
             @Override
-            public void updateData(Movie[] mymovie) {
-                if (mymovie != null) {
+            public void updateData(Movie[] movies) {
+                if (movies != null) {
                     mAdapter.cleanUp();
-                    Collections.addAll(myMovies, mymovie);
+                    Collections.addAll(myMovies, movies);
                     mAdapter.notifyDataSetChanged();
+                    if (itemPosition != GridView.INVALID_POSITION) {
+                        mygridView.smoothScrollToPosition(itemPosition);
+
+                    }
                 }
             }
-
         });
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-         sortingOrder = preferences.getString(getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_popular_value));
-        moviesTask.execute(sortingOrder);
-
+        moviesTask.execute(order);
     }
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState (Bundle  outState) {
         outState.putParcelableArrayList(LISTS, myMovies);
+        if (itemPosition != GridView.INVALID_POSITION) {
+            outState.putInt(KEY_SELECTED_POSITION, itemPosition);
+        }
         super.onSaveInstanceState(outState);
+
     }
-
-
     //check for wifi Connection
     public boolean CheckForWifiNetwork(){
         ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -166,19 +274,27 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return wifi;
     }
     //check for Mobile Data Connection
-
     public boolean CheckForMobileNetwork(){
         ConnectivityManager manager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean mobile = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
         return mobile;
 
     }
-
+//SharedPreferenceChangeCallBack to watch for changes in the sharedPreferences
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(this);
          sortingOrder = preferences.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popular_value));
+        IS_PREFERENCE_UPDATE = true;
     }
+
+    private void changeSortOrder(int sortOrder) {
+        String orderKey = getResources().getString(sortOrder);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(getString(R.string.pref_sort_key), orderKey);
+        editor.apply();
+    }
+
 }

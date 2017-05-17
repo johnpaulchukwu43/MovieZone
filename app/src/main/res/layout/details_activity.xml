@@ -4,15 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="javadevs.moviezone.DetailActivity">
 
+    tools:context="javadevs.moviezone.DetailActivity">
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/appbar_layout_height"
-        android:fitsSystemWindows="true"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/toolbar_layout"
@@ -22,20 +20,115 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <ImageView
-                android:id="@+id/poster"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:baselineAlignBottom="true" />
+                android:layout_height="250dp"
+                android:layout_marginBottom="56dp">
+
+                <ImageView
+                    android:id="@+id/poster"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:fitsSystemWindows="true"
+                    android:scaleType="centerCrop"
+                    app:layout_collapseMode="parallax"
+                    tools:ignore="ContentDescription" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.8"
+                    android:background="@color/dark_blue2" />
+
+                <TextView
+                    android:id="@+id/tv_movie_title"
+                    android:layout_width="@dimen/three_hundred"
+                    android:layout_height="wrap_content"
+
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:maxLines="2"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"
+                    android:visibility="visible" />
 
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+                <TextView
+
+                    android:id="@+id/tv_movie_genres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/tv_ratings_total"
+                    android:layout_alignLeft="@+id/tv_movie_language_date"
+                    android:layout_alignStart="@+id/tv_movie_language_date"
+
+                    android:text="@string/release_date"
+                    android:textColor="@color/white"
+                    android:textSize="14sp" />
+
+
+                <TextView
+                    android:id="@+id/tv_movie_language_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="@dimen/fifteen"
+                    android:layout_marginLeft="@dimen/thirty_five"
+                    android:layout_marginStart="@dimen/thirty_five"
+
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
+
+
+                <TextView
+                    android:id="@+id/tv_movie_ratings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/tv_ratings_total"
+                    android:layout_marginBottom="@dimen/fifteen"
+                    android:layout_marginTop="@dimen/fifty"
+                    android:layout_toLeftOf="@id/tv_ratings_total"
+                    android:layout_toStartOf="@id/tv_ratings_total"
+                    android:textColor="@color/maroon_blue"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+
+
+                    tools:ignore="RelativeOverlap"
+                    tools:text="5" />
+
+                <TextView
+                    android:id="@+id/tv_ratings_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="@dimen/fifteen"
+                    android:layout_marginRight="@dimen/twenty_five"
+                    android:layout_marginTop="@dimen/ten"
+                    android:text="@string/ratings_total"
+                    android:textColor="@color/light_grey"
+                    android:textSize="14sp"
+                    tools:ignore="RtlHardcoded" />
+
+
+            </RelativeLayout>
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/movie_details_tab"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
+                android:layout_gravity="bottom"
+                android:background="@color/colorPrimaryDark"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/light_grey"
+                app:tabIndicatorHeight="2dp"
+                app:tabMode="fixed"
+                app:tabSelectedTextColor="@color/light_grey"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+                app:tabTextColor="@color/black" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -48,8 +141,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:layout_anchor="@id/app_bar"
+        app:layout_anchor="@+id/scrollView"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@android:drawable/ic_menu_share" />
+
+
+
 
 </android.support.design.widget.CoordinatorLayout>

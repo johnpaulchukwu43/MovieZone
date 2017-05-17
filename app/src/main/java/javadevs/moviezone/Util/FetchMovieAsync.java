@@ -2,6 +2,8 @@ package javadevs.moviezone.Util;
 
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,15 +17,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javadevs.moviezone.Interface.MovieCallBack;
-import javadevs.moviezone.Movie;
+import javadevs.moviezone.MainActivity;
+import javadevs.moviezone.model.Movie;
 
 /**
  * Created by CHUKWU JOHNPAUL on 16/04/17.
+ * Class extends AsyncTask CLass and is used to fetch Movie data from the specified url
  */
 
 public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
     private final MovieCallBack movieCallBack;
-    public final String myApiKey="YOUR_KEY";
+    public final String myApiKey= MainActivity.API_KEY;
+    ProgressBar mProgressBar;
+
     public FetchMovieAsync(MovieCallBack movieTaskCallback) {
         this.movieCallBack = movieTaskCallback;
     }
@@ -38,18 +44,35 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
         for(int i=0;i<mJsonArray.length();i++){
             JSONObject singleMovieItem = mJsonArray.getJSONObject(i);
             movieList[i] = new Movie(
-                    singleMovieItem.getString("original_title"),
+                    singleMovieItem.getInt("id"),
+                    singleMovieItem.getString("title"),
                     singleMovieItem.getString("poster_path"),
                     singleMovieItem.getString("overview"),
-                    singleMovieItem.getString("vote_average"),
-                    singleMovieItem.getString("release_date")
+                    singleMovieItem.getDouble("vote_average"),
+                    singleMovieItem.getString("release_date"),
+                    singleMovieItem.getString("original_language"),
+                    singleMovieItem.getString("backdrop_path")
             );
+
 
         }
         return movieList;
     }
 
+    public void showProgressBar(ProgressBar mProgressBar){
+        this.mProgressBar = mProgressBar;
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+    public void hideProgressBar(ProgressBar mProgressBar){
+        this.mProgressBar = mProgressBar;
+        mProgressBar.setVisibility(View.GONE);
+    }
 
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        showProgressBar(MainActivity.pb_loading_indicator);
+    }
 
     @Override
     protected Movie[] doInBackground(String... params) {
@@ -122,6 +145,7 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
 
     @Override
     protected void onPostExecute(Movie[] mymovies) {
+        hideProgressBar(MainActivity.pb_loading_indicator);
         movieCallBack.updateData(mymovies);
     }
 

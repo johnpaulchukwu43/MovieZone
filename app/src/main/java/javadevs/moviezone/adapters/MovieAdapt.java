@@ -1,4 +1,4 @@
-package javadevs.moviezone;
+package javadevs.moviezone.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
+
+import javadevs.moviezone.R;
+import javadevs.moviezone.model.Movie;
 
 /**
  * Created by CHUKWU JOHNPAUL on 16/04/17.
