@@ -35,10 +35,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private static final String LISTS = "movie_list";
     private static final String KEY_SELECTED_POSITION = "SELECTED_POSITION";
     public static final String MOVIE = "movie" ;
-    private static final String INDEX = "index" ;
-    private static final String TOP = "top" ;
-    int index=-1;
-    int top=-1;
+
     private int itemPosition = GridView.INVALID_POSITION;
     private MovieAdapt mAdapter;
     private ArrayList<Movie> myMovies;
@@ -48,8 +45,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     SharedPreferences prefs;
     public boolean IS_PREFERENCE_UPDATE = false;
     GridView mygridView;
-    Parcelable grid_state;
-    public static final String API_KEY ="ef64a84df789083d3c9996e5c1e3c055";
+    public static final String API_KEY ="YOUR API_KEY";
     public static ProgressBar pb_loading_indicator;
 
 
