@@ -1,2 +1,2 @@
 # MovieZone
-Enter your api-key in FetchMovieAsync.java to get started
+Enter your api-key in MainActvity to get Started :)
