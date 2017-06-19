@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryLight"
+    android:orientation="vertical"
     tools:context="javadevs.moviezone.MainActivity">
-
 
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,6 +23,25 @@
             android:layout_gravity="center"
             android:textSize="20sp"
             android:visibility="invisible" />
+        <TextView
+            android:id="@+id/no_search_found"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="@string/empty"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/refreshbtn"
+            android:layout_width="193dp"
+            android:layout_height="91dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="650dp"
+            android:text="@string/refresh"
+            android:onClick="refreshContent" />
+
 
         <ProgressBar
             android:id="@+id/pb_loading_indicator"
@@ -29,15 +49,20 @@
             android:layout_width="42dp"
             android:layout_gravity="center"
             android:visibility="invisible" />
-    <GridView
-        android:id="@+id/my_grid_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:verticalSpacing="0dp"
-        android:horizontalSpacing="0dp"
-        android:stretchMode="columnWidth"
-        android:numColumns="auto_fit"/>
+
+        <GridView
+            android:id="@+id/my_grid_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:horizontalSpacing="0dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="0dp" />
+
+
     </FrameLayout>
 
 
 </LinearLayout>
+
+

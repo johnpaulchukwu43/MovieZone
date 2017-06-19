@@ -19,57 +19,63 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javadevs.moviezone.Interface.MovieCallBack;
+import javadevs.moviezone.Interface.SearchCallBack;
 import javadevs.moviezone.MainActivity;
 import javadevs.moviezone.model.Movie;
 
 /**
- * Created by CHUKWU JOHNPAUL on 16/04/17.
- * Class extends AsyncTask CLass and is used to fetch Movie data from the specified url
+ * Created by CHUKWU JOHNPAUL on 19/05/17.
  */
 
-public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
-    private final MovieCallBack movieCallBack;
+
+public class SearchMovieAsync extends AsyncTask<String,Void,Movie[]>{
+    private static final String USERS_QUERY ="query" ;
     public final String myApiKey= MainActivity.API_KEY;
     ProgressBar mProgressBar;
+    SearchCallBack mSearchCallBack;
     TextView mTextView;
     GridView mGridview;
     Button mButton;
-
-    public FetchMovieAsync(MovieCallBack movieTaskCallback) {
-        this.movieCallBack = movieTaskCallback;
+    public SearchMovieAsync(SearchCallBack searchTaskCallback) {
+        this.mSearchCallBack = searchTaskCallback;
     }
-
-    private Movie[] getJsonResult(String response ) throws JSONException{
+    private Movie[] getJsonResult(String response ) throws JSONException {
+        Movie[] movieList;
         if (response == null || "".equals(response)) {
             return null;
         }
         JSONObject mJsonObject = new JSONObject(response);
         JSONArray mJsonArray = mJsonObject.getJSONArray("results");
-        Movie[] movieList = new Movie[mJsonArray.length()];
-        for(int i=0;i<mJsonArray.length();i++){
-            JSONObject singleMovieItem = mJsonArray.getJSONObject(i);
-            movieList[i] = new Movie(
-                    singleMovieItem.getInt("id"),
-                    singleMovieItem.getString("title"),
-                    singleMovieItem.getString("poster_path"),
-                    singleMovieItem.getString("overview"),
-                    singleMovieItem.getDouble("vote_average"),
-                    singleMovieItem.getString("release_date"),
-                    singleMovieItem.getString("original_language"),
-                    singleMovieItem.getString("backdrop_path")
-
-            );
-
+        if(mJsonArray.length()>0){
+           movieList = new Movie[mJsonArray.length()];
+            for(int i=0;i<mJsonArray.length();i++){
+                JSONObject singleMovieItem = mJsonArray.getJSONObject(i);
+                movieList[i] = new Movie(
+                        singleMovieItem.getInt("id"),
+                        singleMovieItem.getString("title"),
+                        singleMovieItem.getString("poster_path"),
+                        singleMovieItem.getString("overview"),
+                        singleMovieItem.getDouble("vote_average"),
+                        singleMovieItem.getString("release_date"),
+                        singleMovieItem.getString("original_language"),
+                        singleMovieItem.getString("backdrop_path")
+                );
+            }
 
         }
+        else{
+            return null;
+        }
         return movieList;
+
     }
 
     public void showProgressBar(ProgressBar mProgressBar){
         this.mProgressBar = mProgressBar;
         mProgressBar.setVisibility(View.VISIBLE);
     }
+
+
     public void hideProgressBar(ProgressBar mProgressBar){
         this.mProgressBar = mProgressBar;
         mProgressBar.setVisibility(View.GONE);
@@ -88,6 +94,12 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
         this.mGridview = grid;
         mGridview.setVisibility(View.VISIBLE);
     }
+
+
+    public void hideGridView(GridView grid){
+        this.mGridview = grid;
+        mGridview.setVisibility(View.GONE);
+    }
     public void showBtn(Button btn){
         this.mButton = btn;
         mButton.setVisibility(View.VISIBLE);
@@ -103,9 +115,9 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
     protected void onPreExecute() {
         super.onPreExecute();
         showProgressBar(MainActivity.pb_loading_indicator);
+        hideGridView(MainActivity.mygridView);
         hideTextView(MainActivity.empty_msg_txt);
-        showGridView(MainActivity.mygridView);
-        hideBtn(MainActivity.reloadbtn);
+
     }
 
     @Override
@@ -113,7 +125,7 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
         if(params.length==0){
             return null;
         }
-        final String BASE_URL = "https://api.themoviedb.org/3/movie/";
+        final String BASE_URL = "https://api.themoviedb.org/3/search/movie";
         final String API_KEY = "api_key";
 
         HttpURLConnection urlConnection = null;
@@ -121,8 +133,8 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
         BufferedReader reader = null;
 
         Uri uri = Uri.parse(BASE_URL).buildUpon()
-                .appendEncodedPath(params[0])
                 .appendQueryParameter(API_KEY,myApiKey)
+                .appendQueryParameter(USERS_QUERY,params[0])
                 .build();
         try {
             URL url = new URL(uri.toString());
@@ -180,8 +192,16 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
     @Override
     protected void onPostExecute(Movie[] mymovies) {
         hideProgressBar(MainActivity.pb_loading_indicator);
-        movieCallBack.updateData(mymovies);
+        mSearchCallBack.searchData(mymovies);
+        if(mymovies != null){
+            showGridView(MainActivity.mygridView);
+            hideTextView(MainActivity.empty_msg_txt);
+        }else{
+            hideGridView(MainActivity.mygridView);
+            showTextView(MainActivity.empty_msg_txt);
+            showBtn(MainActivity.reloadbtn);
+        }
+
+
     }
-
-
 }

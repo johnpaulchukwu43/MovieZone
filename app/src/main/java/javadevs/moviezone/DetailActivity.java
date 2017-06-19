@@ -29,17 +29,18 @@ import javadevs.moviezone.Fragments.ReviewFragment;
 import javadevs.moviezone.Fragments.TrailerFragment;
 import javadevs.moviezone.data.MoviesZoneContract;
 import javadevs.moviezone.data.MoviesZoneDbHelper;
-import javadevs.moviezone.model.Movie;
 
 public class DetailActivity extends AppCompatActivity {
     String backdrop_path, get_title, get_language, get_releasedate,poster, release_date;
     double get_ratings;
     public static int id;
     FloatingActionButton fab;
+
     private boolean isMarkFavorite;
     MoviesZoneSection mMovieZoneSection;
     TabLayout tablayout;
     ViewPager MovieViewPager;
+
     SQLiteDatabase movieZoneDB;
     ImageView backdropImg;
     TextView title,language_date,ratings,genre;
@@ -187,6 +188,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
     }
+
 
 
     //Method to start an implicit intent to share Movie
