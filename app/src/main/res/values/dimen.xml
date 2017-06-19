@@ -7,7 +7,7 @@
     <dimen name="progress_height">42dp</dimen>
     <dimen name="progress_width">42dp</dimen>
     <dimen name="appbar_layout_height">253dp</dimen>
-    <dimen name="cardCornerRadius">6dp</dimen>
+    <dimen name="cardCornerRadius">2dp</dimen>
     <dimen name="cardMaxElevation">4dp</dimen>
     <dimen name="cardElevation">2dp</dimen>
     <dimen name="iv_Poster_margin">4dp</dimen>

@@ -29,21 +29,19 @@ import javadevs.moviezone.Fragments.ReviewFragment;
 import javadevs.moviezone.Fragments.TrailerFragment;
 import javadevs.moviezone.data.MoviesZoneContract;
 import javadevs.moviezone.data.MoviesZoneDbHelper;
-import javadevs.moviezone.model.Movie;
 
 public class DetailActivity extends AppCompatActivity {
     String backdrop_path, get_title, get_language, get_releasedate,poster, release_date;
     double get_ratings;
     public static int id;
     FloatingActionButton fab;
-    Movie movie;
+
     private boolean isMarkFavorite;
     MoviesZoneSection mMovieZoneSection;
     TabLayout tablayout;
     ViewPager MovieViewPager;
-    View favorite;
+
     SQLiteDatabase movieZoneDB;
-    Toast mCurrentToast;
     ImageView backdropImg;
     TextView title,language_date,ratings,genre;
     MoviesZoneDbHelper myHelper;
@@ -191,14 +189,7 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
-    void popToast(String text) {
-        if (mCurrentToast != null) {
-            mCurrentToast.cancel();
-        }
-        mCurrentToast = Toast.makeText(this, text, Toast.LENGTH_LONG);
-        mCurrentToast.show();
 
-    }
 
     //Method to start an implicit intent to share Movie
     private void startIntent() {

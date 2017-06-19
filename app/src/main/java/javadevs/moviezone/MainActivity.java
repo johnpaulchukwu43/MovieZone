@@ -7,24 +7,30 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import javadevs.moviezone.Interface.MovieCallBack;
+import javadevs.moviezone.Interface.SearchCallBack;
 import javadevs.moviezone.Util.FetchMovieAsync;
+import javadevs.moviezone.Util.SearchMovieAsync;
 import javadevs.moviezone.adapters.MovieAdapt;
 import javadevs.moviezone.data.MoviesZoneContract;
 import javadevs.moviezone.model.Movie;
@@ -35,20 +41,17 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     private static final String LISTS = "movie_list";
     private static final String KEY_SELECTED_POSITION = "SELECTED_POSITION";
     public static final String MOVIE = "movie" ;
-    private static final String INDEX = "index" ;
-    private static final String TOP = "top" ;
-    int index=-1;
-    int top=-1;
     private int itemPosition = GridView.INVALID_POSITION;
     private MovieAdapt mAdapter;
     private ArrayList<Movie> myMovies;
     public AlertDialog.Builder mAlertDialog;
     public AlertDialog mAlert;
     public String sortingOrder;
+    public static TextView empty_msg_txt;
     SharedPreferences prefs;
     public boolean IS_PREFERENCE_UPDATE = false;
-    GridView mygridView;
-    Parcelable grid_state;
+    public static GridView mygridView;
+    public static Button reloadbtn;
     public static final String API_KEY ="ef64a84df789083d3c9996e5c1e3c055";
     public static ProgressBar pb_loading_indicator;
 
@@ -57,7 +60,23 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.settings,menu);
-        return true;
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                SearchData(query);
+                searchView.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+
     }
 
     @Override
@@ -103,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //get the default sorting Option
         sortingOrder = prefs.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular_value));
+        //reload btn
+        reloadbtn = (Button)findViewById(R.id.refreshbtn);
+        //txt message
+        empty_msg_txt = (TextView)findViewById(R.id.no_search_found);
         //progressbar
         pb_loading_indicator = (ProgressBar)findViewById(R.id.pb_loading_indicator);
         myMovies = new ArrayList<>();
@@ -194,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
     //FETCH USERS FAVOURITE MOVIE FROM DB
     public void LoadFavourite() {
-
                     Cursor cursor = getContentResolver()
                     .query(MoviesZoneContract.MoviesEntry.CONTENT_URI, null, null, null, null);
            mAdapter.cleanUp();
@@ -258,6 +280,24 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         });
         moviesTask.execute(order);
     }
+    public void SearchData(String query){
+        SearchMovieAsync searchTask = new SearchMovieAsync(new SearchCallBack() {
+            @Override
+            public void searchData(Movie[] movies) {
+                if(movies!= null){
+                    mAdapter.cleanUp();
+                    Collections.addAll(myMovies,movies);
+                    mAdapter.notifyDataSetChanged();
+                }
+                else{
+                    mygridView.setVisibility(View.INVISIBLE);
+                    empty_msg_txt.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        searchTask.execute(query);
+
+    }
     @Override
     public void onSaveInstanceState (Bundle  outState) {
         outState.putParcelableArrayList(LISTS, myMovies);
@@ -297,4 +337,25 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         editor.apply();
     }
 
+    public void refreshContent(View v){
+        successLoad();
+    }
+
+    private void addScrollListener() {
+        mygridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+
+                }
+            }
+
+
+        });
+    }
 }
