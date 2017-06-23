@@ -54,11 +54,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     public static GridView mygridView;
     public static Button reloadbtn;
-    public static final String API_KEY ="ef64a84df789083d3c9996e5c1e3c055";
-
-    GridView mygridView;
+    
     public static final String API_KEY ="YOUR API_KEY";
-
     public static ProgressBar pb_loading_indicator;
 
 
