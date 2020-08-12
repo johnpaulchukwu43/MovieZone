@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javadevs.moviezone.BuildConfig;
 import javadevs.moviezone.Interface.MovieCallBack;
 import javadevs.moviezone.MainActivity;
 import javadevs.moviezone.model.Movie;
@@ -30,7 +31,6 @@ import javadevs.moviezone.model.Movie;
 
 public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
     private final MovieCallBack movieCallBack;
-    public final String myApiKey= MainActivity.API_KEY;
     ProgressBar mProgressBar;
     TextView mTextView;
     GridView mGridview;
@@ -122,7 +122,7 @@ public class FetchMovieAsync extends AsyncTask<String,Void,Movie[]> {
 
         Uri uri = Uri.parse(BASE_URL).buildUpon()
                 .appendEncodedPath(params[0])
-                .appendQueryParameter(API_KEY,myApiKey)
+                .appendQueryParameter(API_KEY, BuildConfig.THE_MOVIEDB_API_KEY)
                 .build();
         try {
             URL url = new URL(uri.toString());
