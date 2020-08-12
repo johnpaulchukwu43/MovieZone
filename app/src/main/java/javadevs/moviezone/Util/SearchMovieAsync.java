@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javadevs.moviezone.BuildConfig;
 import javadevs.moviezone.Interface.SearchCallBack;
 import javadevs.moviezone.MainActivity;
 import javadevs.moviezone.model.Movie;
@@ -30,7 +31,6 @@ import javadevs.moviezone.model.Movie;
 
 public class SearchMovieAsync extends AsyncTask<String,Void,Movie[]>{
     private static final String USERS_QUERY ="query" ;
-    public final String myApiKey= MainActivity.API_KEY;
     ProgressBar mProgressBar;
     SearchCallBack mSearchCallBack;
     TextView mTextView;
@@ -133,7 +133,7 @@ public class SearchMovieAsync extends AsyncTask<String,Void,Movie[]>{
         BufferedReader reader = null;
 
         Uri uri = Uri.parse(BASE_URL).buildUpon()
-                .appendQueryParameter(API_KEY,myApiKey)
+                .appendQueryParameter(API_KEY, BuildConfig.THE_MOVIEDB_API_KEY)
                 .appendQueryParameter(USERS_QUERY,params[0])
                 .build();
         try {

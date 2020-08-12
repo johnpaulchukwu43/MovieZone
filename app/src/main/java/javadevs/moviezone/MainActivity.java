@@ -7,11 +7,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+import androidx.appcompat.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -54,8 +54,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     public static GridView mygridView;
     public static Button reloadbtn;
-    
-    public static final String API_KEY ="YOUR API_KEY";
+
     public static ProgressBar pb_loading_indicator;
 
 

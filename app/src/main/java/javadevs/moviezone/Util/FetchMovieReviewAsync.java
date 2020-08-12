@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javadevs.moviezone.BuildConfig;
 import javadevs.moviezone.Interface.ReviewCallBack;
 import javadevs.moviezone.MainActivity;
 import javadevs.moviezone.NetworkUtil;
@@ -57,7 +58,7 @@ public class FetchMovieReviewAsync extends AsyncTask<Integer, Void, Review[]> {
         Uri uri = Uri.parse(BASE_URL).buildUpon()
                 .appendEncodedPath(String.valueOf(integers[0]))
                 .appendEncodedPath(TYPE)
-                .appendQueryParameter(API_KEY, MainActivity.API_KEY)
+                .appendQueryParameter(API_KEY, BuildConfig.THE_MOVIEDB_API_KEY)
                 .build();
 
         String jsonString = NetworkUtil.getJsonString(uri);
