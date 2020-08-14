@@ -20,7 +20,7 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'THE_MOVIEDB_API_KEY', '"YOUR API_KEY"'
+        it.buildConfigField 'String', 'THE_MOVIEDB_API_KEY', '"ef64a84df789083d3c9996e5c1e3c055"'
     }
     compileOptions {
         sourceCompatibility 1.8

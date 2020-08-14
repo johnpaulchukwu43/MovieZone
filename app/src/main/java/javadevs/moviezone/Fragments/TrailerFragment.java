@@ -3,23 +3,22 @@ package javadevs.moviezone.Fragments;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
 import javadevs.moviezone.DetailActivity;
-import javadevs.moviezone.Interface.TrailerAdapterCallback;
-import javadevs.moviezone.Interface.TrailerCallBack;
 import javadevs.moviezone.R;
 import javadevs.moviezone.Util.FetchMovieTrailerAsync;
 import javadevs.moviezone.adapters.MovieTrailerAdapter;
@@ -34,80 +33,68 @@ public class TrailerFragment extends Fragment {
     private static final String YOUTUBE_URL_APP = "vnd.youtube://";
     private static final String YOUTUBE_URL_BROWSER = "https://www.youtube.com/watch";
     private static final String VIDEO_PARAMETER = "v";
-    private static final String MOVIE_KEY = "movie_key" ;
-    private static final String KEY_TRAILER_LIST ="key_trailer";
-    TextView trailersTitle,errorMessage;
-    public static TextView no_trailer_message;
-    RecyclerView recyclerView;
-    MovieTrailerAdapter mAdapter;
-    private ArrayList<Trailer> MovieTrailersList;
-    int movieId;
-    public static ProgressBar trailerProgressBar;
+    private static final String MOVIE_KEY = "movie_key";
+    private static final String KEY_TRAILER_LIST = "key_trailer";
+    private MovieTrailerAdapter movieTrailerAdapter;
+    private ArrayList<Trailer> movieTrailersList;
+    private int movieId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
             movieId = DetailActivity.id;
-            MovieTrailersList = new ArrayList<>();
-            updateTrailerAdapters(movieId);
-        }
-        else{
+            movieTrailersList = new ArrayList<>();
+        } else {
             movieId = savedInstanceState.getInt(MOVIE_KEY);
-            MovieTrailersList = savedInstanceState.getParcelableArrayList(KEY_TRAILER_LIST);
-            updateTrailerAdapters(movieId);
+            movieTrailersList = savedInstanceState.getParcelableArrayList(KEY_TRAILER_LIST);
         }
+        updateTrailerAdapters(movieId);
     }
 
     public static TrailerFragment newInstance() {
-        TrailerFragment fragment = new TrailerFragment();
-        return fragment;
+        return new TrailerFragment();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View mView = inflater.inflate(R.layout.fragment_trailer,container,false);
-        trailersTitle = (TextView) mView.findViewById(R.id.trailer_name);
-        trailerProgressBar = (ProgressBar) mView.findViewById(R.id.pb_trailer_loader);
-        no_trailer_message = (TextView)mView.findViewById(R.id.no_trailer);
-        MovieTrailersList = new ArrayList<>();
-        errorMessage = (TextView) mView.findViewById(R.id.error_message);
-        recyclerView = (RecyclerView) mView.findViewById(R.id.rv_trailer);
+        View mView = inflater.inflate(R.layout.fragment_trailer, container, false);
+//        TextView trailersTitle = (TextView) mView.findViewById(R.id.trailer_name);
+//        ProgressBar trailerProgressBar = (ProgressBar) mView.findViewById(R.id.pb_trailer_loader);
+//        TextView no_trailer_message = (TextView) mView.findViewById(R.id.no_trailer);
+//        TextView errorMessage = (TextView) mView.findViewById(R.id.error_message);
+        movieTrailersList = new ArrayList<>();
+        RecyclerView recyclerView = (RecyclerView) mView.findViewById(R.id.rv_trailer);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager mlayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(mlayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        mAdapter = new MovieTrailerAdapter(MovieTrailersList,
-                new TrailerAdapterCallback() {
-                    @Override
-                    public void onItemClickListener(String trailerKey) {
-                        if (trailerKey != null ) {
-                            PlayMovieTrailer(trailerKey);
-                        }
+        movieTrailerAdapter = new MovieTrailerAdapter(movieTrailersList,
+                trailerKey -> {
+                    if (trailerKey != null) {
+                        playMovieTrailer(trailerKey);
                     }
                 });
-        recyclerView.setAdapter(mAdapter);
+        recyclerView.setAdapter(movieTrailerAdapter);
         recyclerView.setVisibility(View.VISIBLE);
         return mView;
     }
-    public void updateTrailerAdapters(int movieId){
-        FetchMovieTrailerAsync fetchMovieTrailerAsync = new FetchMovieTrailerAsync(new TrailerCallBack() {
-            @Override
-            public void updateAdapter(Trailer[] trailers) {
-                if (trailers != null) {
-                    MovieTrailersList.clear();
-                    Collections.addAll(MovieTrailersList, trailers);
-                    mAdapter.notifyDataSetChanged();
 
-                }
+    public void updateTrailerAdapters(int movieId) {
+        FetchMovieTrailerAsync fetchMovieTrailerAsync = new FetchMovieTrailerAsync(trailers -> {
+            if (trailers != null) {
+                movieTrailersList.clear();
+                Collections.addAll(movieTrailersList, trailers);
+                movieTrailerAdapter.notifyDataSetChanged();
+
             }
-        },getActivity());
+        }, getActivity());
         fetchMovieTrailerAsync.execute(movieId);
     }
 
-    private void PlayMovieTrailer(String trailerKey) {
+    private void playMovieTrailer(String trailerKey) {
         Intent intent;
         if (checkForYouTubeApp()) {
             intent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL_APP + trailerKey));
@@ -122,15 +109,20 @@ public class TrailerFragment extends Fragment {
     }
 
     private boolean checkForYouTubeApp() {
-        return getActivity().getPackageManager()
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            Log.d(getTag(), "checkForYouTubeApp: Activity null !");
+            return false;
+        }
+        return activity.getPackageManager()
                 .getLaunchIntentForPackage(YOUTUBE_APP_PACKAGE) != null;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_TRAILER_LIST,MovieTrailersList);
-        outState.putInt(MOVIE_KEY,movieId);
+        outState.putParcelableArrayList(KEY_TRAILER_LIST, movieTrailersList);
+        outState.putInt(MOVIE_KEY, movieId);
 
     }
 

@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import androidx.annotation.NonNull;
@@ -42,28 +43,20 @@ public class MovieZoneProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        Cursor query_cursor = null;
-        switch (mUriMatcher.match(uri)) {
-
-            case USER_FAVORITE_MOVIES: {
-
-                query_cursor = movieZoneDbHelper.getReadableDatabase().query(
-                        /* Table we are going to query */
-                        TABLE_NAME,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null);
-
-                break;
-
-            }
-
+        Cursor queryCursor = null;
+        if (mUriMatcher.match(uri) == USER_FAVORITE_MOVIES) {
+            queryCursor = movieZoneDbHelper.getReadableDatabase().query(
+                    /* Table we are going to query */
+                    TABLE_NAME,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
         }
-        query_cursor.setNotificationUri(getContext().getContentResolver(), uri);
-        return query_cursor;
+        queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return queryCursor;
     }
 
     @Nullable
@@ -79,21 +72,18 @@ public class MovieZoneProvider extends ContentProvider {
         int match = mUriMatcher.match(uri);
         Uri returnUri; // URI to be returned
 
-        switch (match) {
-            case USER_FAVORITE_MOVIES:
-                // Insert new values into the database
-                // Inserting values into tasks table
-                long id = db.insert(TABLE_NAME, null, contentValues);
-                if ( id > 0 ) {
-                    returnUri = ContentUris.withAppendedId(MoviesZoneContract.MoviesEntry.CONTENT_URI, id);
-                } else {
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                }
-                break;
+        if (match == USER_FAVORITE_MOVIES) {// Insert new values into the database
+            // Inserting values into tasks table
+            long id = db.insert(TABLE_NAME, null, contentValues);
+            if (id > 0) {
+                returnUri = ContentUris.withAppendedId(MoviesZoneContract.MoviesEntry.CONTENT_URI, id);
+            } else {
+                throw new SQLException("Failed to insert row into " + uri);
+            }
             // Set the value for the returnedUri and write the default case for unknown URI's
             // Default case throws an UnsupportedOperationException
-            default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        } else {
+            throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
         // Notify the resolver if the uri has been changed, and return the newly inserted URI
@@ -119,18 +109,13 @@ public class MovieZoneProvider extends ContentProvider {
          */
         if (null == selection) selection = "1";
 
-        switch (mUriMatcher.match(uri)) {
-
-            case USER_FAVORITE_MOVIES_WITH_ID:
-                numRowsDeleted = movieZoneDbHelper.getWritableDatabase().delete(
-                        TABLE_NAME,
-                        selection,
-                        selectionArgs);
-
-                break;
-
-            default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        if (mUriMatcher.match(uri) == USER_FAVORITE_MOVIES_WITH_ID) {
+            numRowsDeleted = movieZoneDbHelper.getWritableDatabase().delete(
+                    TABLE_NAME,
+                    selection,
+                    selectionArgs);
+        } else {
+            throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
         /* If we actually deleted any rows, notify that a change has occurred to this URI */

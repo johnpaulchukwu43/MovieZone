@@ -4,6 +4,8 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,14 +15,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
 import javadevs.moviezone.DetailActivity;
-import javadevs.moviezone.Interface.ReviewCallBack;
 import javadevs.moviezone.R;
 import javadevs.moviezone.Util.FetchMovieReviewAsync;
 import javadevs.moviezone.adapters.MovieReviewAdapter;
 import javadevs.moviezone.model.Review;
-
 
 
 /**
@@ -28,21 +27,17 @@ import javadevs.moviezone.model.Review;
  */
 
 public class ReviewFragment extends Fragment implements View.OnClickListener {
-    private int movie_id;
+    private int movieId;
     private static final String KEY_REVIEW_LIST = "keyReviewList";
     private static final String KEY_MOVIE_ID = "movie_id";
-    ImageView refreshImage;
-    TextView errorMessage;
-    RecyclerView recyclerView;
-    MovieReviewAdapter reviewAdapter;
-    ArrayList<Review> reviewItemList ;
-    public static TextView no_review_message;
-
+    private ImageView refreshImage;
+    private TextView errorMessage;
+    private MovieReviewAdapter reviewAdapter;
+    private ArrayList<Review> reviewItemList ;
 
 
     public static ReviewFragment newInstance() {
-        ReviewFragment fragment = new ReviewFragment();
-        return fragment;
+        return new ReviewFragment();
     }
 
     @Override
@@ -51,11 +46,11 @@ public class ReviewFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            movie_id = DetailActivity.id;
+            movieId = DetailActivity.id;
             reviewItemList = new ArrayList<>();
         }
         else {
-            movie_id = savedInstanceState.getInt(KEY_MOVIE_ID);
+            movieId = savedInstanceState.getInt(KEY_MOVIE_ID);
             reviewItemList = savedInstanceState.getParcelableArrayList(KEY_REVIEW_LIST);
         }
     }
@@ -64,7 +59,7 @@ public class ReviewFragment extends Fragment implements View.OnClickListener {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(KEY_REVIEW_LIST, reviewItemList);
-        outState.putInt(KEY_MOVIE_ID,movie_id);
+        outState.putInt(KEY_MOVIE_ID, movieId);
     }
 
 
@@ -77,44 +72,37 @@ public class ReviewFragment extends Fragment implements View.OnClickListener {
         refreshImage = (ImageView) v.findViewById(R.id.refresh);
         refreshImage.setOnClickListener(this);
         errorMessage = (TextView) v.findViewById(R.id.error_message);
-        no_review_message = (TextView)v.findViewById(R.id.no_reviews);
-        recyclerView = (RecyclerView) v.findViewById(R.id.rv_reviews);
-        recyclerView.setHasFixedSize(true);
+        RecyclerView reviewRecyclerView = (RecyclerView) v.findViewById(R.id.rv_reviews);
+        reviewRecyclerView.setHasFixedSize(true);
         LinearLayoutManager mlayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(mlayoutManager);
+        reviewRecyclerView.setLayoutManager(mlayoutManager);
         reviewAdapter = new MovieReviewAdapter(reviewItemList);
-        recyclerView.setAdapter(reviewAdapter);
-        LoadView();
+        reviewRecyclerView.setAdapter(reviewAdapter);
+        loadView();
 
         return v;
     }
 
-    private void LoadView() {
-
+    private void loadView() {
         refreshImage.setVisibility(View.INVISIBLE);
         errorMessage.setVisibility(View.INVISIBLE);
-        fetchReviews(movie_id);
+        fetchReviews(movieId);
     }
 
     private void fetchReviews(int id) {
-        FetchMovieReviewAsync reviewTask = new FetchMovieReviewAsync(new ReviewCallBack() {
+        FetchMovieReviewAsync reviewTask = new FetchMovieReviewAsync(review -> {
+            if (review != null) {
+                reviewItemList.clear();
+                Collections.addAll(reviewItemList, review);
+                reviewAdapter.notifyDataSetChanged();
 
-            @Override
-            public void updateAdapter(Review[] review) {
-                if (review != null) {
-                    reviewItemList.clear();
-                    Collections.addAll(reviewItemList, review);
-                    reviewAdapter.notifyDataSetChanged();
-
-                }
             }
         },getContext());
         reviewTask.execute(id);
-
     }
 
     @Override
     public void onClick(View v) {
-
+        Log.i(getTag(), "onClick: Review fragment");
     }
 }

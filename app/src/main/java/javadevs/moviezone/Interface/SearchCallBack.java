@@ -7,5 +7,5 @@ import javadevs.moviezone.model.Movie;
  */
 
 public interface SearchCallBack {
-    void searchData(Movie[]mymovies);
+    void searchData(Movie[] movies);
 }

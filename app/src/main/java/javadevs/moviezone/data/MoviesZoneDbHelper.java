@@ -1,23 +1,13 @@
 package javadevs.moviezone.data;
-
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import java.util.ArrayList;
-
-import javadevs.moviezone.model.Movie;
 
 /**
  * Created by CHUKWU JOHNPAUL on 12/05/17.
  */
 
 public class MoviesZoneDbHelper extends SQLiteOpenHelper {
-    // Logcat tag
-    private static final String LOG = MoviesZoneDbHelper.class.getName();
-
     // Database Version
     private static final int DATABASE_VERSION = 1;
 
