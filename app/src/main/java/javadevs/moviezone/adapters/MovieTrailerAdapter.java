@@ -1,12 +1,13 @@
 package javadevs.moviezone.adapters;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javadevs.moviezone.Interface.TrailerAdapterCallback;
 import javadevs.moviezone.R;
@@ -20,14 +21,15 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
 
 
 
-    private final ArrayList<Trailer> trailers;
+    private final List<Trailer> trailers;
     private final TrailerAdapterCallback adapterCallback;
 
-    public MovieTrailerAdapter(ArrayList<Trailer> trailers, TrailerAdapterCallback callback) {
+    public MovieTrailerAdapter(List<Trailer> trailers, TrailerAdapterCallback callback) {
         this.trailers = trailers;
         this.adapterCallback = callback;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -53,13 +55,8 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
 
         ViewHolder(View itemView) {
             super(itemView);
-            trailerName = (TextView) itemView.findViewById(R.id.trailer_name);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    adapterCallback.onItemClickListener(trailer.getKey());
-                }
-            });
+            trailerName = itemView.findViewById(R.id.trailer_name);
+            itemView.setOnClickListener(view -> adapterCallback.onItemClickListener(trailer.getKey()));
         }
 
     }
