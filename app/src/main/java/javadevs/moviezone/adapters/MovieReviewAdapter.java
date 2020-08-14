@@ -1,7 +1,8 @@
 package javadevs.moviezone.adapters;
 
-import android.content.Context;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,56 +19,45 @@ import javadevs.moviezone.model.Review;
  */
 
 public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.ViewHolder> {
-    private List<Review> itemlist;
-    Context context;
+    private List<Review> reviewList;
 
 
-    public MovieReviewAdapter(Context context, List<Review> itemlist) {
-        this.context = context;
-        this.itemlist = itemlist;
-
+    public MovieReviewAdapter(List<Review> reviewList) {
+        this.reviewList = reviewList;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView review_author, review_content;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView reviewAuthor;
+        TextView reviewContent;
 
 
         public ViewHolder(View view) {
             super(view);
-            review_author = (TextView) view.findViewById(R.id.review_author);
-            review_content = (TextView) view.findViewById(R.id.review_content);
+            reviewAuthor = view.findViewById(R.id.review_author);
+            reviewContent = view.findViewById(R.id.review_content);
         }
     }
 
 
     @Override
+    @NonNull
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.movie_review_item, viewGroup, false);
         return new ViewHolder(view);
-
-
     }
 
-
-    boolean isOdd(int val)
-
-    {
-        return (val & 0x01) != 0;
-    }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-
-        viewHolder.review_author.setText(itemlist.get(position).getAuthor());
-        viewHolder.review_content.setText(itemlist.get(position).getContent());
-
+        viewHolder.reviewAuthor.setText(reviewList.get(position).getAuthor());
+        viewHolder.reviewContent.setText(reviewList.get(position).getContent());
     }
 
 
     @Override
     public int getItemCount() {
-        if (itemlist != null) {
-            return itemlist.size();
+        if (reviewList != null) {
+            return reviewList.size();
         } else return 0;
     }
 

@@ -82,7 +82,7 @@ public class ReviewFragment extends Fragment implements View.OnClickListener {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager mlayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(mlayoutManager);
-        reviewAdapter = new MovieReviewAdapter(getContext(), reviewItemList);
+        reviewAdapter = new MovieReviewAdapter(reviewItemList);
         recyclerView.setAdapter(reviewAdapter);
         LoadView();
 
