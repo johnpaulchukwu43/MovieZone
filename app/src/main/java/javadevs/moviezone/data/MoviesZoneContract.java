@@ -8,11 +8,17 @@ import android.provider.BaseColumns;
  */
 
 public class MoviesZoneContract {
-    public static String CONTENT_AUTHORITY = "javadevs.moviezone";
-    public static final Uri BASE_CONTENT_URI= Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    private MoviesZoneContract() {
+    }
+
+    public static final String CONTENT_AUTHORITY = "javadevs.moviezone";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String USER_FAVOURITE_MOVIES = "favorite_movies";
 
     public static final class MoviesEntry implements BaseColumns {
+        private MoviesEntry() {
+        }
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(USER_FAVOURITE_MOVIES)
@@ -25,9 +31,9 @@ public class MoviesZoneContract {
         public static final String COLUMN_RATING = "rating";
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_MOVIE_ID = "movie_id";
-        public static final String COLUMN_OVERVIEW= "overview";
-        public static final String COLUMN_FAVOURITE= "favorite";
-        public static final String COLUMN_LANGUAGE= "language";
+        public static final String COLUMN_OVERVIEW = "overview";
+        public static final String COLUMN_FAVOURITE = "favorite";
+        public static final String COLUMN_LANGUAGE = "language";
         public static final String COLUMN_GENRE_ARRAY_STRING = "genre_array_string";
 
     }

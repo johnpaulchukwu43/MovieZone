@@ -12,22 +12,18 @@ import java.util.List;
 import javadevs.moviezone.Interface.TrailerAdapterCallback;
 import javadevs.moviezone.R;
 import javadevs.moviezone.model.Trailer;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Created by CHUKWU JOHNPAUL on 14/05/17.
  */
-
+@RequiredArgsConstructor
 public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapter.ViewHolder> {
 
 
 
     private final List<Trailer> trailers;
     private final TrailerAdapterCallback adapterCallback;
-
-    public MovieTrailerAdapter(List<Trailer> trailers, TrailerAdapterCallback callback) {
-        this.trailers = trailers;
-        this.adapterCallback = callback;
-    }
 
     @NonNull
     @Override

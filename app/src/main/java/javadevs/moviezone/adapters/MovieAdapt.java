@@ -15,24 +15,19 @@ import java.util.List;
 
 import javadevs.moviezone.R;
 import javadevs.moviezone.model.Movie;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Created by CHUKWU JOHNPAUL on 16/04/17.
  */
 
+@RequiredArgsConstructor
 public class MovieAdapt extends BaseAdapter {
     private static final String BASE_POSTER_URL = "https://image.tmdb.org/t/p/";
     private static final String IMAGE_SIZE = "w300";
 
-    ImageView mImg;
-    private List<Movie> movieList;
-
-    private Context ctx;
-
-    public MovieAdapt(List<Movie> movieList, Context ctx) {
-        this.movieList = movieList;
-        this.ctx = ctx;
-    }
+    private final List<Movie> movieList;
+    private final Context ctx;
 
     @Override
     public int getCount() {
@@ -55,7 +50,7 @@ public class MovieAdapt extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View row;
         row = inflater.inflate(R.layout.movie_item, parent, false);
-        mImg = row.findViewById(R.id.cover_image);
+        ImageView mImg = row.findViewById(R.id.cover_image);
         String url = BASE_POSTER_URL +
                 IMAGE_SIZE +
                 movie.getPosterPath().trim();

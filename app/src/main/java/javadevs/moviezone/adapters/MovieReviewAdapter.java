@@ -12,19 +12,16 @@ import java.util.List;
 
 import javadevs.moviezone.R;
 import javadevs.moviezone.model.Review;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Created by CHUKWU JOHNPAUL on 13/05/17.
- * Recycler View Adapter
+ *
  */
 
+@RequiredArgsConstructor
 public class MovieReviewAdapter extends RecyclerView.Adapter<MovieReviewAdapter.ViewHolder> {
-    private List<Review> reviewList;
-
-
-    public MovieReviewAdapter(List<Review> reviewList) {
-        this.reviewList = reviewList;
-    }
+    private final List<Review> reviewList;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView reviewAuthor;
