@@ -3,21 +3,21 @@ package javadevs.moviezone.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Created by CHUKWU JOHNPAUL on 14/05/17.
  */
 
+@Data
+@RequiredArgsConstructor
 public class Trailer implements Parcelable {
 
     private final String trailerId;
     private final String key;
     private final String name;
 
-    public Trailer(String trailerId, String key, String name) {
-        this.trailerId = trailerId;
-        this.key = key;
-        this.name = name;
-    }
 
     public Trailer(Parcel in) {
         trailerId = in.readString();
@@ -36,14 +36,6 @@ public class Trailer implements Parcelable {
             return new Trailer[size];
         }
     };
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getName() {
-        return name;
-    }
 
     @Override
     public int describeContents() {

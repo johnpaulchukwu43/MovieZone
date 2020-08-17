@@ -3,22 +3,21 @@ package javadevs.moviezone.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Created by CHUKWU JOHNPAUL on 13/05/17.
  */
 
-
+@Data
+@RequiredArgsConstructor
 public class Review implements Parcelable {
 
     private final String reviewId;
     private final String author;
     private final String content;
 
-    public Review(String reviewId, String author, String content) {
-        this.reviewId = reviewId;
-        this.author = author;
-        this.content = content;
-    }
 
     public Review(Parcel in) {
         reviewId = in.readString();
@@ -37,14 +36,6 @@ public class Review implements Parcelable {
             return new Review[size];
         }
     };
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getContent() {
-        return content;
-    }
 
     @Override
     public int describeContents() {

@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 intent.putExtra("ratings", mymovie.getVoteAverage());
                 intent.putExtra("poster",mymovie.getPosterPath());
                 intent.putExtra("genre", mymovie.getGenreIdStrings());
-                intent.putExtra("backdrop_path",mymovie.getBackdropPath());
+                intent.putExtra("backdrop_path",mymovie.getBackDropPath());
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }

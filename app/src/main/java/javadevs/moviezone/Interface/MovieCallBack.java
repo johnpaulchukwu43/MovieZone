@@ -7,5 +7,5 @@ import javadevs.moviezone.model.Movie;
  */
 
 public interface MovieCallBack {
-    void updateData(Movie[]mymovies);
+    void updateData(Movie[] movies);
 }
